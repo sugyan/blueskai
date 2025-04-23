@@ -8,6 +8,7 @@ from a file and processing them.
 
 import asyncio
 import logging
+import zoneinfo
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
@@ -50,10 +51,12 @@ async def process_instruction(
 
         # Use Runner to process the instruction
         logger.info("Processing instruction with agent")
+
+        current_time = datetime.now(tz=zoneinfo.ZoneInfo("Asia/Tokyo"))
         result = Runner.run_streamed(
             agent,
             f"""
-                <!-- Current date and time: {datetime.now().isoformat()} -->
+                <!-- Current date and time: {current_time.isoformat()} -->
                 {instruction}
             """,
         )
