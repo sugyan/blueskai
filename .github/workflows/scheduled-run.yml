@@ -38,7 +38,9 @@ jobs:
         run: pip install uv
 
       - name: Install dependencies
-        run: uv pip install -e .
+        run: |
+          uv venv
+          uv sync
 
       - name: Run Blueskai
         run: |
