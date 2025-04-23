@@ -1,4 +1,4 @@
-# Blueskai
+# BlueskAI
 
 AI agent that processes markdown instructions and generates thoughtful responses.
 
@@ -14,14 +14,9 @@ AI agent that processes markdown instructions and generates thoughtful responses
 # Install dependencies
 uv sync
 
-# Run with default instruction
-python -m blueskai.main
-
-# Run with custom instruction file
-python -m blueskai.main path/to/instruction.md
+# Run with instruction file
+python -m blueskai.main --profile 3 --instruction path/to/instruction.md
 ```
-
-See [usage documentation](docs/usage.md) for detailed instructions.
 
 ## Development
 

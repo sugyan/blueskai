@@ -1,0 +1,3 @@
+[submodule "bsky-mcp-server"]
+	path = bsky-mcp-server
+	url = https://github.com/brianellin/bsky-mcp-server.git
