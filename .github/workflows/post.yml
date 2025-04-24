@@ -20,6 +20,11 @@ jobs:
         run: |
           python3 -m random -f 1 | awk '{ exit ($1 < 0.035 ? 0 : 1) }'
 
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive" # Checkout all submodules recursively
+
       - name: Set up
         uses: ./.github/actions/setup-blueskai
 

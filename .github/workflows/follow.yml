@@ -11,9 +11,14 @@ jobs:
   run-follow:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive" # Checkout all submodules recursively
+
       - name: Set up
         uses: ./.github/actions/setup-blueskai
-        
+
       - name: Run Blueskai
         run: |
           uv run python -m blueskai.main --profile 0 --instruction instructions/follow.md
