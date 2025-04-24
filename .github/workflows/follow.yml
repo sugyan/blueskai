@@ -1,0 +1,26 @@
+name: Daily Follow
+
+on:
+  schedule:
+    # Run at 9:00 AM/PM JST (0:00 UTC)
+    - cron: "0 0/12 * * *"
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  run-follow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up
+        uses: ./.github/actions/setup-blueskai
+        
+      - name: Run Blueskai
+        run: |
+          uv run python -m blueskai.main --profile 0 --instruction instructions/follow.md
+          uv run python -m blueskai.main --profile 1 --instruction instructions/follow.md
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
+          BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
+          BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
+          BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
