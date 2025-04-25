@@ -30,8 +30,8 @@ jobs:
 
       - name: Run Blueskai
         run: |
-          uv run python -m blueskai.main --profile 0 --instruction instructions/follow.md
-          uv run python -m blueskai.main --profile 1 --instruction instructions/follow.md
+          uv run python -m blueskai.main --profile 0 --instruction instructions/post.md
+          uv run python -m blueskai.main --profile 1 --instruction instructions/post.md
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
