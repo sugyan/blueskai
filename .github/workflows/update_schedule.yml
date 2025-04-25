@@ -5,6 +5,9 @@ on:
     - cron: "0 18 * * *" # JST 3:00
   workflow_dispatch: null
 
+permissions:
+  contents: write
+
 jobs:
   update-schedule:
     runs-on: ubuntu-latest
@@ -18,8 +21,8 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: |
-            uv venv
-            uv sync
+          uv venv
+          uv sync
       - name: Update daily_post.yml
         run: uv run scripts/update_schedule.py
       - name: Commit and Push
