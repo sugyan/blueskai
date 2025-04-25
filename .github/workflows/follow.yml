@@ -8,10 +8,7 @@ on:
   workflow_dispatch: null
 
 jobs:
-  setup:
-    uses: ./.github/workflows/blueskai-setup.yml
   run-follow:
-    needs: setup
     runs-on: ubuntu-latest
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -20,6 +17,12 @@ jobs:
       BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
       BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
     steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive" # Checkout all submodules recursively
+      - name: Set up
+        uses: ./.github/actions/setup-blueskai
       - name: Run follow (profile 0)
         run: uv run python -m blueskai.main --profile 0 --instruction instructions/follow.md
       - name: Run follow (profile 1)
