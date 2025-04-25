@@ -1,40 +1,28 @@
 name: Daily Post
-
-on:
+description: This file will be rewritten from the script
+'on':
   schedule:
-    # Run at 8:00 - 24:00 JST (23:00 - 15:00 UTC)
-    - cron: '2,9,15,22,30,45,53,59 23,0-14 * * *'
-  workflow_dispatch:
-
+  - cron: 40 2 * * *
+  - cron: 35 5 * * *
+  - cron: 58 8 * * *
+  workflow_dispatch: null
 jobs:
   run-post:
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
+      BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
+      BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
+      BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
     steps:
-      - name: Checkout repository with submodules
-        uses: actions/checkout@v4
-        with:
-          submodules: "recursive" # Checkout all submodules recursively
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-          cache: "pip"
-
-      - name: Skip
-        run: |
-          python3 -m random -f 1 | awk '{ exit ($1 < 0.035 ? 0 : 1) }'
-
-      - name: Set up
-        uses: ./.github/actions/setup-blueskai
-
-      - name: Run Blueskai
-        run: |
-          uv run python -m blueskai.main --profile 0 --instruction instructions/post.md
-          uv run python -m blueskai.main --profile 1 --instruction instructions/post.md
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
-          BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
-          BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
-          BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
+    - name: Checkout repository with submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Set up
+      uses: ./.github/actions/setup-blueskai
+    - name: Run profile 0
+      run: uv run python -m blueskai.main --profile 0 --instruction instructions/post.md
+    - name: Run profile 1
+      run: uv run python -m blueskai.main --profile 1 --instruction instructions/post.md
