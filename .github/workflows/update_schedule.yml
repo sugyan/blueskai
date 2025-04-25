@@ -1,0 +1,31 @@
+name: Update Daily Schedule
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # JST 3:00
+  workflow_dispatch: null
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: |
+            uv venv
+            uv sync
+      - name: Update daily_post.yml
+        run: uv run scripts/update_schedule.py
+      - name: Commit and Push
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .github/workflows/post.yml
+          git commit -m "Update daily post schedule"
+          git push
