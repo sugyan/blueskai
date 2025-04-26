@@ -56,7 +56,7 @@ async def process_instruction(
         result = Runner.run_streamed(
             agent,
             f"""
-                <!-- Current date and time: {current_time.isoformat()} -->
+                <!-- Current date and time: {current_time.strftime("%Y-%m-%d %H:%M:%S (%a)")} -->
                 {instruction}
             """,
         )
