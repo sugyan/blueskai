@@ -2,10 +2,9 @@ name: Daily Post
 description: This file will be rewritten from the script
 'on':
   schedule:
-  - cron: 12 9 * * *
-  - cron: 13 9 * * *
-  - cron: 27 10 * * *
-  - cron: 42 14 * * *
+  - cron: 9 2 * * *
+  - cron: 3 3 * * *
+  - cron: 20 14 * * *
   workflow_dispatch: null
 jobs:
   run-post:
