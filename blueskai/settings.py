@@ -22,10 +22,5 @@ settings = Settings(
             bsky_identifier=os.environ["BLUESKY_IDENTIFIER_0"],
             bsky_app_password=os.environ["BLUESKY_APP_PASSWORD_0"],
         ),
-        Profile(
-            file=(Path(__file__).parent.parent / "profiles" / "01.md").resolve(),
-            bsky_identifier=os.environ["BLUESKY_IDENTIFIER_1"],
-            bsky_app_password=os.environ["BLUESKY_APP_PASSWORD_1"],
-        ),
     ]
 )

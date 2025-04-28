@@ -1,5 +1,5 @@
 name: Daily Post
-description: This file will be rewritten from the script
+description: This file will be updated daily by `scripts/update_schedule.py`
 'on':
   schedule:
   - cron: 48 3 * * *
@@ -15,8 +15,6 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
       BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
-      BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
-      BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
     steps:
     - name: Checkout repository with submodules
       uses: actions/checkout@v4
@@ -24,7 +22,5 @@ jobs:
         submodules: recursive
     - name: Set up
       uses: ./.github/actions/setup-blueskai
-    - name: Run post (profile 0)
+    - name: Run post
       run: uv run python -m blueskai.main --profile 0 --instruction instructions/post.md
-    - name: Run post (profile 1)
-      run: uv run python -m blueskai.main --profile 1 --instruction instructions/post.md
