@@ -2,9 +2,9 @@ name: Daily Post
 description: This file will be updated daily by `scripts/update_schedule.py`
 'on':
   schedule:
-  - cron: 27 9 * * *
-  - cron: 7 10 * * *
-  - cron: 45 12 * * *
+  - cron: 38 5 * * *
+  - cron: 24 9 * * *
+  - cron: 3 14 * * *
   workflow_dispatch: null
 jobs:
   run-post:
