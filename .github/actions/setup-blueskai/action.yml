@@ -4,19 +4,6 @@ description: 'Setup environment for Blueskai'
 runs:
   using: "composite"
   steps:
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: "18" # Use an appropriate Node.js version
-
-    - name: Build bsky-mcp-server
-      shell: bash
-      run: |
-        cd bsky-mcp-server
-        npm install
-        npm run build
-        cd ..
-
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
@@ -32,3 +19,9 @@ runs:
       run: |
         uv venv
         uv sync
+
+    - name: Download bsky-rmcp
+      shell: bash
+      run: |
+        curl -L -o bin/bsky-rmcp https://github.com/sugyan/bsky-rmcp/releases/download/v0.0.5/bsky-rmcp
+        chmod +x bin/bsky-rmcp

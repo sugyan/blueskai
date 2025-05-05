@@ -15,10 +15,8 @@ jobs:
       BLUESKY_IDENTIFIER_0: ${{ secrets.BLUESKY_IDENTIFIER_0 }}
       BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
     steps:
-    - name: Checkout repository with submodules
+    - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
     - name: Set up
       uses: ./.github/actions/setup-blueskai
     - name: Run post

@@ -41,11 +41,12 @@ async def process_instruction(
         agent = Agent(
             name="Blueskai Processor",
             instructions=f"""
-                You act entirely as the person indicated in the following profile.:
+                You act entirely as the person indicated in the following profile:
                 {profile}
             """,
             # model="gpt-4.1-nano-2025-04-14",
-            model="gpt-4.1-mini-2025-04-14",
+            # model="gpt-4.1-mini-2025-04-14",
+            model="o4-mini-2025-04-16",
             mcp_servers=[mcp_server],
         )
 
@@ -108,18 +109,9 @@ async def main(profile: Profile, instruction: Path) -> None:
     async with MCPServerStdio(
         name="bsky",
         params={
-            "command": "node",
-            "args": [
-                str(
-                    (
-                        Path(__file__).parent.parent
-                        / "bsky-mcp-server"
-                        / "build"
-                        / "src"
-                        / "index.js"
-                    ).resolve()
-                ),
-            ],
+            "command": str(
+                (Path(__file__).parent.parent / "bin" / "bsky-rmcp").resolve()
+            ),
             "env": {
                 "BLUESKY_IDENTIFIER": profile.bsky_identifier,
                 "BLUESKY_APP_PASSWORD": profile.bsky_app_password,
