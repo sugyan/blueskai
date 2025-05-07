@@ -115,6 +115,7 @@ async def main(profile: Profile, instruction: Path) -> None:
             "env": {
                 "BLUESKY_IDENTIFIER": profile.bsky_identifier,
                 "BLUESKY_APP_PASSWORD": profile.bsky_app_password,
+                "RUST_LOG": "info",
             },
         },
     ) as server:
