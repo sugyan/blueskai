@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Set up
       uses: ./.github/actions/setup-blueskai
-    - name: Run reply
+    - name: Run reply 0
       run: uv run python -m blueskai.main --profile 0 --instruction instructions/reply.md
-    - name: Run reply
+    - name: Run reply 1
       run: uv run python -m blueskai.main --profile 1 --instruction instructions/reply.md
