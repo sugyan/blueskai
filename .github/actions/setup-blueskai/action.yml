@@ -23,7 +23,7 @@ runs:
     - name: Download bsky-rmcp
       shell: bash
       env:
-        BSKY_RMCP_VERSION: v0.0.7
+        BSKY_RMCP_VERSION: v0.0.8
       run: |
         curl -L -o bin/bsky-rmcp https://github.com/sugyan/bsky-rmcp/releases/download/${BSKY_RMCP_VERSION}/bsky-rmcp
         chmod +x bin/bsky-rmcp
