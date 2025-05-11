@@ -10,7 +10,7 @@ def main() -> None:
 
 
 def generate_schedule() -> list[tuple[int, int]]:
-    num = choices([3, 4, 5, 6], weights=[2, 5, 5, 1])[0]
+    num = choices([5, 6, 7, 8], weights=[2, 5, 5, 1])[0]
     return [(randint(8, 23), randint(0, 59)) for _ in range(num)]
 
 
