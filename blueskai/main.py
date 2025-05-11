@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 async def process_instruction(
-    mcp_server: MCPServer, profile: str, instruction: str
+    mcp_servers: list[MCPServer], profile: str, instruction: str
 ) -> dict[str, Any]:
     """Process a single markdown instruction using an Agent.
 
@@ -47,7 +47,7 @@ async def process_instruction(
             # model="gpt-4.1-nano-2025-04-14",
             # model="gpt-4.1-mini-2025-04-14",
             model="o4-mini-2025-04-16",
-            mcp_servers=[mcp_server],
+            mcp_servers=mcp_servers,
         )
 
         # Use Runner to process the instruction
@@ -106,20 +106,36 @@ async def main(profile: Profile, instruction: Path) -> None:
     with instruction.open("r") as file:
         instruction_content = file.read()
 
-    async with MCPServerStdio(
-        name="bsky",
-        params={
-            "command": str(
-                (Path(__file__).parent.parent / "bin" / "bsky-rmcp").resolve()
-            ),
-            "env": {
-                "BLUESKY_IDENTIFIER": profile.bsky_identifier,
-                "BLUESKY_APP_PASSWORD": profile.bsky_app_password,
-                "RUST_LOG": "info",
+    async with (
+        MCPServerStdio(
+            name="bsky",
+            params={
+                "command": str(
+                    (Path(__file__).parent.parent / "bin" / "bsky-rmcp").resolve()
+                ),
+                "env": {
+                    "BLUESKY_IDENTIFIER": profile.bsky_identifier,
+                    "BLUESKY_APP_PASSWORD": profile.bsky_app_password,
+                    "RUST_LOG": "info",
+                },
             },
-        },
-    ) as server:
-        result = await process_instruction(server, profile_content, instruction_content)
+        ) as bsky_rmcp,
+        MCPServerStdio(
+            name="brave_search",
+            params={
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+                "env": {
+                    "BRAVE_API_KEY": settings.brave_api_key,
+                },
+            },
+        ) as search,
+    ):
+        result = await process_instruction(
+            [bsky_rmcp, search],
+            profile_content,
+            instruction_content,
+        )
     if result["success"]:
         logger.info("Instruction processed successfully.")
     else:
