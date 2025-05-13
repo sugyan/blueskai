@@ -129,6 +129,7 @@ async def main(profile: Profile, instruction: Path) -> None:
                     "BRAVE_API_KEY": settings.brave_api_key,
                 },
             },
+            client_session_timeout_seconds=15,
         ) as search,
     ):
         result = await process_instruction(
