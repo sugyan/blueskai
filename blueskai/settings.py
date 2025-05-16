@@ -12,11 +12,13 @@ class Profile:
 
 @dataclass
 class Settings:
+    tz: str
     brave_api_key: str
     profiles: list[Profile]
 
 
 settings = Settings(
+    tz="Asia/Tokyo",
     brave_api_key=os.environ["BRAVE_API_KEY"],
     profiles=[
         Profile(

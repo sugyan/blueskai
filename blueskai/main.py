@@ -53,7 +53,7 @@ async def process_instruction(
         # Use Runner to process the instruction
         logger.info("Processing instruction with agent")
 
-        current_time = datetime.now(tz=zoneinfo.ZoneInfo("Asia/Tokyo"))
+        current_time = datetime.now(tz=zoneinfo.ZoneInfo(settings.tz))
         result = Runner.run_streamed(
             agent,
             f"""
@@ -116,6 +116,7 @@ async def main(profile: Profile, instruction: Path) -> None:
                 "env": {
                     "BLUESKY_IDENTIFIER": profile.bsky_identifier,
                     "BLUESKY_APP_PASSWORD": profile.bsky_app_password,
+                    "TZ": settings.tz,
                     "RUST_LOG": "info",
                 },
             },
