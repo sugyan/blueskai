@@ -131,6 +131,7 @@ async def main(profile: Profile, instruction: Path) -> None:
                     settings.expertise_mcp_url,
                 ],
             },
+            client_session_timeout_seconds=15,
         ) as expertise,
     ):
         result = await process_instruction(
