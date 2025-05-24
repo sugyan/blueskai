@@ -17,7 +17,7 @@ jobs:
       BLUESKY_APP_PASSWORD_0: ${{ secrets.BLUESKY_APP_PASSWORD_0 }}
       BLUESKY_IDENTIFIER_1: ${{ secrets.BLUESKY_IDENTIFIER_1 }}
       BLUESKY_APP_PASSWORD_1: ${{ secrets.BLUESKY_APP_PASSWORD_1 }}
-      BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+      EXPERTISE_MCP_URL: ${{ secrets.EXPERTISE_MCP_URL }}
       TZ: Asia/Tokyo
     steps:
     - name: Checkout repository
