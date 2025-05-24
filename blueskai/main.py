@@ -12,7 +12,7 @@ import zoneinfo
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from agents import Agent, ItemHelpers, Runner
 from agents.mcp import MCPServer, MCPServerStdio
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 async def process_instruction(
-    mcp_servers: list[MCPServer], profile: str, instruction: str
+    mcp_servers: Iterable[MCPServer], profile: str, instruction: str
 ) -> dict[str, Any]:
     """Process a single markdown instruction using an Agent.
 
@@ -47,7 +47,7 @@ async def process_instruction(
             # model="gpt-4.1-nano-2025-04-14",
             # model="gpt-4.1-mini-2025-04-14",
             model="o4-mini-2025-04-16",
-            mcp_servers=mcp_servers,
+            mcp_servers=list(mcp_servers),
         )
 
         # Use Runner to process the instruction
@@ -122,21 +122,24 @@ async def main(profile: Profile, instruction: Path) -> None:
             },
         ) as bsky_rmcp,
         MCPServerStdio(
-            name="brave_search",
+            name="expertise",
             params={
                 "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-                "env": {
-                    "BRAVE_API_KEY": settings.brave_api_key,
-                },
+                "args": [
+                    "-y",
+                    "mcp-remote",
+                    settings.expertise_mcp_url,
+                ],
             },
-            client_session_timeout_seconds=15,
-        ) as search,
+        ) as expertise,
     ):
         result = await process_instruction(
-            [bsky_rmcp, search],
-            profile_content,
-            instruction_content,
+            mcp_servers=filter(
+                lambda x: x.name in profile.mcp_servers,
+                [bsky_rmcp, expertise],
+            ),
+            profile=profile_content,
+            instruction=instruction_content,
         )
     if result["success"]:
         logger.info("Instruction processed successfully.")

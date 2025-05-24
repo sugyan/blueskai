@@ -8,28 +8,31 @@ class Profile:
     file: Path
     bsky_identifier: str
     bsky_app_password: str
+    mcp_servers: set[str]
 
 
 @dataclass
 class Settings:
     tz: str
-    brave_api_key: str
+    expertise_mcp_url: str
     profiles: list[Profile]
 
 
 settings = Settings(
     tz="Asia/Tokyo",
-    brave_api_key=os.environ["BRAVE_API_KEY"],
+    expertise_mcp_url=os.environ["EXPERTISE_MCP_URL"],
     profiles=[
         Profile(
             file=(Path(__file__).parent.parent / "profiles" / "00.md").resolve(),
             bsky_identifier=os.environ["BLUESKY_IDENTIFIER_0"],
             bsky_app_password=os.environ["BLUESKY_APP_PASSWORD_0"],
+            mcp_servers={"bsky"},
         ),
         Profile(
             file=(Path(__file__).parent.parent / "profiles" / "01.md").resolve(),
             bsky_identifier=os.environ["BLUESKY_IDENTIFIER_1"],
             bsky_app_password=os.environ["BLUESKY_APP_PASSWORD_1"],
+            mcp_servers={"bsky", "expertise"},
         ),
     ],
 )
