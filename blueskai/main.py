@@ -60,6 +60,7 @@ async def process_instruction(
                 <!-- Current date and time: {current_time.strftime("%Y-%m-%d %H:%M:%S (%a)")} -->
                 {instruction}
             """,
+            max_turns=20,
         )
         async for event in result.stream_events():
             # We'll ignore the raw responses event deltas
