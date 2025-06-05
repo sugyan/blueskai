@@ -29,5 +29,5 @@ ruff check .
 ruff format .
 
 # Run tests
-pytest
+uv run pytest
 ```
