@@ -6,7 +6,6 @@ with configurable AI models and MCP servers.
 """
 
 import logging
-import zoneinfo
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -15,7 +14,6 @@ import agents
 from agents import Agent, ItemHelpers
 from agents.mcp import MCPServer
 
-from .settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -33,44 +31,67 @@ class Runner:
         self.profile_path = profile_path
         self.model = model
 
-    async def process_instruction(
-        self, mcp_servers: Iterable[MCPServer], instruction: str
-    ) -> dict[str, Any]:
-        """Process a single markdown instruction using an Agent.
+    def prepare_agent(self, mcp_servers: Iterable[MCPServer]) -> Agent:
+        """Prepare the agent with profile and configuration.
 
         Args:
             mcp_servers: MCP servers to use with the agent.
-            instruction: The markdown instruction to process.
+
+        Returns:
+            Configured Agent instance.
+        """
+        # Read profile from file
+        with self.profile_path.open("r") as file:
+            profile_content = file.read()
+
+        # Create an agent
+        agent = Agent(
+            name="Blueskai Processor",
+            instructions=f"""
+                You act entirely as the person indicated in the following profile:
+                {profile_content}
+            """,
+            model=self.model,
+            mcp_servers=list(mcp_servers),
+        )
+        return agent
+
+    def prepare_instruction(self, instruction_path: Path) -> str:
+        """Prepare instruction with current time context.
+
+        Args:
+            instruction_path: Path to the instruction file.
+
+        Returns:
+            Formatted instruction string with timestamp.
+        """
+        # Read instruction from file
+        with instruction_path.open("r") as file:
+            instruction_content = file.read()
+
+        # Add current time context
+        current_time = datetime.now()
+        return f"""
+            <!-- Current date and time: {current_time.strftime("%Y-%m-%d %H:%M:%S (%a)")} -->
+            {instruction_content}
+        """
+
+    async def run_agent(self, agent: Agent, instruction: str) -> dict[str, Any]:
+        """Execute the agent with the prepared instruction.
+
+        Args:
+            agent: Configured Agent instance.
+            instruction: Formatted instruction string.
 
         Returns:
             Dict containing the agent's response.
         """
         try:
-            # Read profile from file
-            with self.profile_path.open("r") as file:
-                profile_content = file.read()
-
-            # Create an agent
-            agent = Agent(
-                name="Blueskai Processor",
-                instructions=f"""
-                    You act entirely as the person indicated in the following profile:
-                    {profile_content}
-                """,
-                model=self.model,
-                mcp_servers=list(mcp_servers),
-            )
-
-            # Use agents.Runner to process the instruction
             logger.info(f"Processing instruction with agent using model: {self.model}")
 
-            current_time = datetime.now(tz=zoneinfo.ZoneInfo(settings.tz))
             result = agents.Runner.run_streamed(
                 agent,
-                f"""
-                    <!-- Current date and time: {current_time.strftime("%Y-%m-%d %H:%M:%S (%a)")} -->
-                    {instruction}
-                """,
+                instruction,
                 max_turns=20,
             )
             async for event in result.stream_events():
@@ -95,6 +116,26 @@ class Runner:
                         pass  # Ignore other event types
 
             return {"success": True}
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            return {"success": False, "error": str(e)}
+
+    async def process_instruction(
+        self, mcp_servers: Iterable[MCPServer], instruction_path: Path
+    ) -> dict[str, Any]:
+        """Process a markdown instruction file using an Agent.
+
+        Args:
+            mcp_servers: MCP servers to use with the agent.
+            instruction_path: Path to the instruction file.
+
+        Returns:
+            Dict containing the agent's response.
+        """
+        try:
+            agent = self.prepare_agent(mcp_servers)
+            instruction = self.prepare_instruction(instruction_path)
+            return await self.run_agent(agent, instruction)
         except Exception as e:
             logger.error(f"Error: {e}")
             return {"success": False, "error": str(e)}

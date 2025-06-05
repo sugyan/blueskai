@@ -53,7 +53,7 @@ ruff format .
 mypy .
 
 # Run tests
-pytest
+uv run pytest
 
 # Run the main application
 python -m blueskai.main --profile 0 --instruction instructions/post.md

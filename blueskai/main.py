@@ -32,10 +32,6 @@ async def main(profile: Profile, instruction: Path, model: str) -> None:
     Returns:
         None. Prints the processing result.
     """
-    # Get instruction from file
-    with instruction.open("r") as file:
-        instruction_content = file.read()
-
     # Create runner with specified profile and model
     runner = Runner(profile_path=profile.file, model=model)
 
@@ -72,7 +68,7 @@ async def main(profile: Profile, instruction: Path, model: str) -> None:
                 lambda x: x.name in profile.mcp_servers,
                 [bsky_rmcp, expertise],
             ),
-            instruction=instruction_content,
+            instruction_path=instruction,
         )
     if result["success"]:
         logger.info("Instruction processed successfully.")
