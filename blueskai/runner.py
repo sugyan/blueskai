@@ -98,18 +98,18 @@ class Runner:
                 # We'll ignore the raw responses event deltas
                 if event.type == "raw_response_event":
                     continue
-                # When the agent updates, print that
+                # When the agent updates, log that
                 elif event.type == "agent_updated_stream_event":
-                    print(f"Agent updated: {event.new_agent.name}")
+                    logger.info(f"Agent updated: {event.new_agent.name}")
                     continue
-                # When items are generated, print them
+                # When items are generated, log them
                 elif event.type == "run_item_stream_event":
                     if event.item.type == "tool_call_item":
-                        print("-- Tool was called")
+                        logger.info("-- Tool was called")
                     elif event.item.type == "tool_call_output_item":
-                        print(f"-- Tool output: {event.item.output}")
+                        logger.info(f"-- Tool output: {event.item.output}")
                     elif event.item.type == "message_output_item":
-                        print(
+                        logger.info(
                             f"-- Message output:\n {ItemHelpers.text_message_output(event.item)}"
                         )
                     else:
@@ -117,7 +117,7 @@ class Runner:
 
             return {"success": True}
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.exception("Error processing instruction")
             return {"success": False, "error": str(e)}
 
     async def process_instruction(
@@ -137,5 +137,5 @@ class Runner:
             instruction = self.prepare_instruction(instruction_path)
             return await self.run_agent(agent, instruction)
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.exception("Error processing instruction")
             return {"success": False, "error": str(e)}
