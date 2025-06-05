@@ -8,15 +8,12 @@ from a file and processing them.
 
 import asyncio
 import logging
-import zoneinfo
 from argparse import ArgumentParser
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
 
-from agents import Agent, ItemHelpers, Runner
-from agents.mcp import MCPServer, MCPServerStdio
+from agents.mcp import MCPServerStdio
 
+from .runner import Runner
 from .settings import Profile, settings
 
 # Configure logging
@@ -24,88 +21,23 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-async def process_instruction(
-    mcp_servers: Iterable[MCPServer], profile: str, instruction: str
-) -> dict[str, Any]:
-    """Process a single markdown instruction using an Agent.
+async def main(profile: Profile, instruction: Path, model: str) -> None:
+    """Process a markdown instruction from file.
 
     Args:
-        instruction: The markdown instruction to process.
-
-    Returns:
-        Dict containing the agent's response.
-    """
-    try:
-        # Create an agent
-        # Uses environment variable OPENAI_API_KEY
-        agent = Agent(
-            name="Blueskai Processor",
-            instructions=f"""
-                You act entirely as the person indicated in the following profile:
-                {profile}
-            """,
-            # model="gpt-4.1-nano-2025-04-14",
-            # model="gpt-4.1-mini-2025-04-14",
-            model="o4-mini-2025-04-16",
-            mcp_servers=list(mcp_servers),
-        )
-
-        # Use Runner to process the instruction
-        logger.info("Processing instruction with agent")
-
-        current_time = datetime.now(tz=zoneinfo.ZoneInfo(settings.tz))
-        result = Runner.run_streamed(
-            agent,
-            f"""
-                <!-- Current date and time: {current_time.strftime("%Y-%m-%d %H:%M:%S (%a)")} -->
-                {instruction}
-            """,
-            max_turns=20,
-        )
-        async for event in result.stream_events():
-            # We'll ignore the raw responses event deltas
-            if event.type == "raw_response_event":
-                continue
-            # When the agent updates, print that
-            elif event.type == "agent_updated_stream_event":
-                print(f"Agent updated: {event.new_agent.name}")
-                continue
-            # When items are generated, print them
-            elif event.type == "run_item_stream_event":
-                if event.item.type == "tool_call_item":
-                    print("-- Tool was called")
-                elif event.item.type == "tool_call_output_item":
-                    print(f"-- Tool output: {event.item.output}")
-                elif event.item.type == "message_output_item":
-                    print(
-                        f"-- Message output:\n {ItemHelpers.text_message_output(event.item)}"
-                    )
-                else:
-                    pass  # Ignore other event types
-
-        return {"success": True}
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        return {"success": False, "error": str(e)}
-
-
-async def main(profile: Profile, instruction: Path) -> None:
-    """Process a markdown instruction from file or use default.
-
-    Args:
-        profile: Index of the profile to use.
+        profile: Profile to use.
         instruction: Path to markdown instruction file.
+        model: OpenAI model to use for the agent.
 
     Returns:
         None. Prints the processing result.
     """
-    # Get profile from file
-    with profile.file.open("r") as file:
-        profile_content = file.read()
-
-    # Get instruction from file or use default
+    # Get instruction from file
     with instruction.open("r") as file:
         instruction_content = file.read()
+
+    # Create runner with specified profile and model
+    runner = Runner(profile_path=profile.file, model=model)
 
     async with (
         MCPServerStdio(
@@ -135,12 +67,11 @@ async def main(profile: Profile, instruction: Path) -> None:
             client_session_timeout_seconds=15,
         ) as expertise,
     ):
-        result = await process_instruction(
+        result = await runner.process_instruction(
             mcp_servers=filter(
                 lambda x: x.name in profile.mcp_servers,
                 [bsky_rmcp, expertise],
             ),
-            profile=profile_content,
             instruction=instruction_content,
         )
     if result["success"]:
@@ -163,8 +94,20 @@ if __name__ == "__main__":
         required=True,
         help="Path to the markdown instruction file.",
     )
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=[
+            "gpt-4.1-nano-2025-04-14",
+            "gpt-4.1-mini-2025-04-14",
+            "o4-mini-2025-04-16",
+        ],
+        default="o4-mini-2025-04-16",
+        help="OpenAI model to use (default: o4-mini-2025-04-16).",
+    )
     args = parser.parse_args()
 
     profile = settings.profiles[args.profile]
-    print(profile)
-    asyncio.run(main(profile=profile, instruction=args.instruction))
+    print(f"Profile: {profile.file.name}")
+    print(f"Model: {args.model}")
+    asyncio.run(main(profile=profile, instruction=args.instruction, model=args.model))
