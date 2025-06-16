@@ -1,13 +1,12 @@
 name: Daily Post
 'on':
   schedule:
-  - cron: 1 4 * * *
-  - cron: 14 5 * * *
-  - cron: 3 7 * * *
-  - cron: 44 9 * * *
-  - cron: 4 11 * * *
-  - cron: 0 13 * * *
-  - cron: 26 14 * * *
+  - cron: 21 23 * * *
+  - cron: 13 7 * * *
+  - cron: 38 9 * * *
+  - cron: 49 9 * * *
+  - cron: 28 10 * * *
+  - cron: 15 13 * * *
   workflow_dispatch: null
 jobs:
   run-post:
