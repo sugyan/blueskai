@@ -1,0 +1,118 @@
+manifest:
+  version: "0.1.2"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: sugyan/blueskai
+    source: https://github.com/sugyan/blueskai
+    branch: main
+    commit: "d8a998e6"
+    scope: [blueskai/runner.py, blueskai/main.py, blueskai/settings.py]
+  issued:
+    by: A2AS.org
+    at: '2026-01-26T16:15:22Z'
+  signatures:
+    digest: sha256:ekIhOOmUN3XRQDEjqElrxGEcSyF7eOM1ANhrwrCIb5Y
+    key: ed25519:iLmtiPjGT29PAnuPn536s1j081RQRJoDvP12EFxBwKo
+    sig: ed25519:kzE-YVeJovAXLv7m2Sx4CLulFtD-nO2T6rS-4czkPqHabfBtEiGhOE4DKPhAG_5yFSeiUWdlf-4Dp6J36tEKDw
+
+agents:
+  agent:
+    type: instance
+    models: [self.model]
+    params:
+      function: prepare_agent
+      name: Blueskai Processor
+      instructions: ['You act entirely as the person indicated in the following profile:', '{profile_content}']
+
+models:
+  self.model:
+    type: variable
+    agents: [agent]
+
+mcp:
+  bsky_rmcp:
+    type: process
+    params:
+      class: MCPServerStdio
+      name: bsky
+      command: str(resolve())
+      env:
+        BLUESKY_IDENTIFIER: profile.bsky_identifier
+        BLUESKY_APP_PASSWORD: profile.bsky_app_password
+        TZ: settings.tz
+        RUST_LOG: info
+  expertise:
+    type: process
+    params:
+      class: MCPServerStdio
+      name: expertise
+      command: npx
+      args: [-y, mcp-remote, settings.expertise_mcp_url]
+      client_session_timeout_seconds: "15"
+
+imports:
+  Agent: agents.Agent
+  agents: agents
+  Any: typing.Any
+  ArgumentParser: argparse.ArgumentParser
+  asyncio: asyncio
+  dataclass: dataclasses.dataclass
+  datetime: datetime.datetime
+  ItemHelpers: agents.ItemHelpers
+  Iterable: typing.Iterable
+  logging: logging
+  MCPServer: agents.mcp.MCPServer
+  MCPServerStdio: agents.mcp.MCPServerStdio
+  os: os
+  Path: pathlib.Path
+  Profile: settings.Profile
+  Runner: runner.Runner
+  settings: settings.settings
+
+functions:
+  __init__:
+    type: sync
+    module: blueskai.runner
+    args: [self, profile_path, model]
+  main:
+    type: async
+    module: blueskai.main
+    args: [profile, instruction, model]
+    params:
+      returns: None
+  prepare_agent:
+    type: sync
+    module: blueskai.runner
+    args: [self, mcp_servers]
+    params:
+      returns: Agent
+  prepare_instruction:
+    type: sync
+    module: blueskai.runner
+    args: [self, instruction_path]
+    params:
+      returns: str
+  process_instruction:
+    type: async
+    module: blueskai.runner
+    args: [self, mcp_servers, instruction_path]
+    params:
+      returns: dict
+  run_agent:
+    type: async
+    module: blueskai.runner
+    args: [self, agent, instruction]
+    params:
+      returns: dict
+
+files:
+  00.md:
+    type: literal
+    actions: [read]
+    params:
+      path: [Path.parent.parent]
+  01.md:
+    type: literal
+    actions: [read]
+    params:
+      path: [Path.parent.parent]
